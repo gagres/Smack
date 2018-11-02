@@ -16,10 +16,10 @@
             android:contentDescription="@string/nav_header_desc"
             android:id="@+id/userImageNavHeader"
             app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="59dp"
             android:layout_marginLeft="8dp" android:layout_marginStart="8dp"
             tools:ignore="MissingConstraints"
-            android:adjustViewBounds="false"/>
+            android:adjustViewBounds="false" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/loginBtnNavHeader"/>
 
     <TextView
             android:layout_width="wrap_content"
@@ -52,9 +52,8 @@
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/userImageNavHeader" android:onClick="loginBtnNavClicked"
-            app:layout_constraintVertical_bias="1.0"/>
+            android:onClick="loginBtnNavClicked"
+    />
     <ImageButton
             android:layout_width="30dp"
             android:layout_height="30dp" app:srcCompat="@drawable/addchannelbutton"
