@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.Toast
 import com.example.gabri.smack.R
 import com.example.gabri.smack.Services.AuthService
+import com.example.gabri.smack.Services.UserDataService
 import kotlinx.android.synthetic.main.activity_create_user.*
 import java.util.*
 
@@ -60,8 +61,14 @@ class CreateUserActivity : AppCompatActivity() {
             if (registerSuccess) {
                 AuthService.loginUser(this, email, password) { loginSuccess ->
                     if (loginSuccess) {
-                        println(AuthService.authToken)
-                        println(AuthService.userEmail)
+                        AuthService.createUser(this, username, email, userAvatar, avatarColor) { createSuccess ->
+                            if (createSuccess) {
+                                println(UserDataService.avatarName)
+                                println(UserDataService.avatarColor)
+                                println(UserDataService.name)
+                                finish()
+                            }
+                        }
                     }
                 }
                 Toast.makeText(this, "User created", Toast.LENGTH_SHORT).show()
