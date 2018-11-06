@@ -9,6 +9,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.gabri.smack.Utilities.URL_CREATE_USER
+import com.example.gabri.smack.Utilities.URL_GET_USER
 import com.example.gabri.smack.Utilities.URL_LOGIN
 import com.example.gabri.smack.Utilities.URL_REGISTER
 import org.json.JSONException
@@ -125,6 +126,38 @@ object AuthService {
         }
 
         Volley.newRequestQueue(context).add(createRequest)
+    }
+
+    fun findUserByEmail(context: Context, complete: (Boolean) -> Unit) {
+        val findUserRequest = object : JsonObjectRequest(Method.GET, "${URL_GET_USER}$userEmail", null,Response.Listener { response ->
+            Log.d("RESPONSE", "User find $response")
+            try {
+                UserDataService.id = response.getString("_id")
+                UserDataService.avatarColor = response.getString("avatarColor")
+                UserDataService.avatarName = response.getString("avatarName")
+                UserDataService.email = response.getString("email")
+                UserDataService.name = response.getString("name")
+                complete(true)
+            } catch(e: JSONException) {
+                Log.e("JSON_ERROR", "We cannot find json key: " + e.localizedMessage)
+                complete(false)
+            }
+        }, Response.ErrorListener { error    ->
+            Log.e("REQUEST_ERROR", "Could not find user $error")
+            complete(false)
+        }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>();
+                headers.put("Authorization", "Bearer $authToken")
+                return headers
+            }
+        }
+
+        Volley.newRequestQueue(context).add(findUserRequest)
     }
 
     fun addRequest(context: Context, request: Request<Any>) {
