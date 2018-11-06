@@ -31,7 +31,8 @@ object AuthService {
             println(response)
             complete(true)
         }, Response.ErrorListener {error ->
-            Log.d("ERROR", "could not register the user: $error")
+            println(error)
+            Log.e("ERROR_REQUEST", "Could not register the user: $error")
             complete(false)
         }) {
             override fun getBodyContentType(): String {
@@ -53,19 +54,18 @@ object AuthService {
         val requestBody = jsonBody.toString()
 
         val loginRequest = object : JsonObjectRequest(Method.POST, URL_LOGIN, null, Response.Listener {response ->
-            println(response)
-
+            Log.d("RESPONSE", "Request response $response")
             try {
                 userEmail = response.getString("user")
                 authToken = response.getString("token")
                 isLoggedIn = true
                 complete(true)
             } catch(e: JSONException) {
-                Log.d("JSON", "EXC: "+ e.localizedMessage)
+                Log.d("JSON_ERROR", "EXC: "+ e.localizedMessage)
                 complete(false)
             }
         }, Response.ErrorListener {error ->
-            Log.d("ERROR", "We cannot login the user: $error")
+            Log.e("ERROR_REQUEST", "We cannot login the user: $error")
             complete(false)
         }) {
             override fun getBodyContentType(): String {
@@ -98,10 +98,10 @@ object AuthService {
                 UserDataService.id = response.getString("_id")
                 complete(true)
             } catch(e: JSONException) {
-                Log.d("JSON", "EXC: "+ e.localizedMessage)
+                Log.e("JSON_ERROR", "EXC: "+ e.localizedMessage)
             }
         }, Response.ErrorListener { error ->
-            Log.d("ERROR", "Could not add user $error")
+            Log.e("ERROR_REQUEST", "Could not add user $error")
             complete(false)
         }) {
             override fun getBodyContentType(): String {
