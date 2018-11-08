@@ -1,6 +1,7 @@
 package com.example.gabri.smack.Services
 
 import android.graphics.Color
+import android.util.Log
 import java.util.*
 
 object UserDataService {
@@ -25,16 +26,18 @@ object UserDataService {
                 .replace("[", "")
                 .replace("]", "")
                 .replace(",", "")
+
         var r = 0
         var g = 0
         var b = 0
 
-        var scanner = Scanner(strippedColor)
-        if (scanner.hasNext()) {
-            r = (scanner.nextDouble() * 255).toInt()
-            g = (scanner.nextDouble() * 255).toInt()
-            b = (scanner.nextDouble() * 255).toInt()
-        }
+        val reg = Regex(" ")
+        val listColors = strippedColor.split(reg)
+
+        r = (listColors[0].toDouble() * 255.0).toInt()
+        g = (listColors[1].toDouble() * 255.0).toInt()
+        b = (listColors[2].toDouble() * 255.0).toInt()
+
         return Color.rgb(r, g, b)
     }
 }
