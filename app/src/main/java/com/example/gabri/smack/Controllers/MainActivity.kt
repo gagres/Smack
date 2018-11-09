@@ -19,6 +19,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Toast
 import com.example.gabri.smack.Adapters.MessageAdapter
 import com.example.gabri.smack.Model.Channel
 import com.example.gabri.smack.Model.Message
@@ -61,6 +62,10 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
 
         setupAdapters()
+        LocalBroadcastManager.getInstance(this).registerReceiver(userDateChangeReceiver,
+            IntentFilter(BROADCAST_USER_DATA_CHANGE)
+        )
+
         if(App.prefs.isLoggedIn) {
             AuthService.findUserByEmail() { userFound ->
                 if (userFound) {
@@ -90,9 +95,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        LocalBroadcastManager.getInstance(this).registerReceiver(userDateChangeReceiver,
-            IntentFilter(BROADCAST_USER_DATA_CHANGE)
-        )
     }
 
     override fun onDestroy() {
@@ -132,10 +134,14 @@ class MainActivity : AppCompatActivity() {
         if (selectedChannel != null) {
             MessageService.getMessages(selectedChannel!!.id) { complete ->
                 if (complete) {
+                    Log.d("CHANNEL_NAME", selectedChannel!!.name)
+                    Log.d("MESSAGES_LIST", MessageService.messages.toString())
                     messageAdapter.notifyDataSetChanged()
-                    if (messageAdapter.itemCount > 0) {
-                        messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
-                    }
+//                    if (messageAdapter.itemCount > 0) {
+//                        messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
+//                    }
+                } else {
+                    Toast.makeText(this, "We cannot retrieve the messages", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -158,7 +164,9 @@ class MainActivity : AppCompatActivity() {
             userImageNavHeader.setImageResource(R.drawable.profiledefault)
             userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
             loginBtnNavHeader.text = "Login"
+            mainChannelName.text = "Please Log In"
             channelAdapter.notifyDataSetChanged()
+            messageAdapter.notifyDataSetChanged()
         } else {
             val loginIntent = Intent(this, LoginActivity::class.java)
             startActivity(loginIntent)
