@@ -16,20 +16,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import com.example.gabri.smack.Model.Channel
 import com.example.gabri.smack.R
 import com.example.gabri.smack.Services.AuthService
+import com.example.gabri.smack.Services.MessageService
 import com.example.gabri.smack.Services.UserDataService
 import com.example.gabri.smack.Utilities.BROADCAST_USER_DATA_CHANGE
+import com.example.gabri.smack.Utilities.NEW_CHANNEL_EVENT
+import com.example.gabri.smack.Utilities.SOCKET_URL
+import io.socket.client.IO
+import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    val socket = IO.socket(SOCKET_URL)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        socket.connect()
+        socket.on("channelCreated", onNewChannel)
 
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar,
@@ -38,12 +49,19 @@ class MainActivity : AppCompatActivity() {
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
+    }
 
-        hideKeyboard()
-
+    override fun onResume() {
+        super.onResume()
         LocalBroadcastManager.getInstance(this).registerReceiver(userDateChangeReceiver,
             IntentFilter(BROADCAST_USER_DATA_CHANGE)
         )
+    }
+
+    override fun onDestroy() {
+        socket.disconnect()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(userDateChangeReceiver)
+        super.onDestroy()
     }
 
     private val userDateChangeReceiver = object : BroadcastReceiver() {
@@ -97,19 +115,29 @@ class MainActivity : AppCompatActivity() {
                     val channelName = nameTextField.text.toString()
                     val channelDesc = descTextFiel.text.toString()
                     // Perform some logic
-
-                    hideKeyboard()
+                    socket.emit(NEW_CHANNEL_EVENT, channelName, channelDesc)
                 }
                 .setNegativeButton("Cancel") { dialog, which ->
                     // Cancel and close dialog
-                    hideKeyboard()
                 }
                 .show()
         }
     }
 
-    fun sendMessageBtnClicked(view: View) {
+    private val onNewChannel = Emitter.Listener {args ->
+        runOnUiThread {
+            val channelName = args[0] as String
+            val channelDesc = args[1] as String
+            val channelId = args[2] as String
 
+            val newChannel = Channel(channelName, channelDesc, channelId)
+
+            MessageService.channels.add(newChannel)
+        }
+    }
+
+    fun sendMessageBtnClicked(view: View) {
+        hideKeyboard()
     }
 
     fun hideKeyboard() {
