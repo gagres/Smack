@@ -7,14 +7,17 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
 import com.example.gabri.smack.Controllers.App
 import com.example.gabri.smack.Model.Channel
+import com.example.gabri.smack.Model.Message
 import com.example.gabri.smack.Utilities.URL_GET_CHANNELS
 import org.json.JSONException
 
 object MessageService {
     val channels = ArrayList<Channel>()
+    val messages = ArrayList<Message>()
 
     fun logout () {
         this.channels.clear()
+        this.messages.clear()
     }
 
     fun getChannels(complete: (Boolean) -> Unit) {

@@ -18,6 +18,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import com.example.gabri.smack.Model.Channel
+import com.example.gabri.smack.Model.Message
 import com.example.gabri.smack.R
 import com.example.gabri.smack.Services.AuthService
 import com.example.gabri.smack.Services.MessageService
@@ -45,6 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         socket.connect()
         socket.on("channelCreated", onNewChannel)
+        socket.on("messageCreated", onNewMessage)
 
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar,
@@ -164,7 +166,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val onNewChannel = Emitter.Listener {args ->
+    private val onNewChannel = Emitter.Listener { args ->
         runOnUiThread {
             val channelName = args[0] as String
             val channelDesc = args[1] as String
@@ -177,8 +179,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val onNewMessage = Emitter.Listener { args ->
+        runOnUiThread {
+            val message = args[0] as String
+            val channelId = args[2] as String
+            val userName = args[3] as String
+            val userAvatar = args[4] as String
+            val userAvatarColor = args[5] as String
+            val id = args[6] as String
+            val timestamp = args[7] as String
+
+            if (selectedChannel.id == channelId) {
+                val newMessage = Message(message, userName, channelId, userAvatar, userAvatarColor, id, timestamp)
+                MessageService.messages.add(newMessage)
+            }
+        }
+    }
+
     fun sendMessageBtnClicked(view: View) {
-        hideKeyboard()
+        if (App.prefs.isLoggedIn && messageTextField.text.isNotEmpty() && selectedChannel != null) {
+            val userId = UserDataService.id
+            val channelId = selectedChannel!!.id
+
+            socket.emit("newMessage", messageTextField.text.toString(), userId, channelId,
+                UserDataService.name, UserDataService.avatarName, UserDataService.avatarColor)
+
+            messageTextField.text.clear()
+            hideKeyboard()
+        }
     }
 
     fun hideKeyboard() {
