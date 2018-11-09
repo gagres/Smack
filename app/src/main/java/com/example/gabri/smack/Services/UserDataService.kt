@@ -1,6 +1,7 @@
 package com.example.gabri.smack.Services
 
 import android.graphics.Color
+import android.os.Message
 import android.util.Log
 import java.util.*
 
@@ -19,6 +20,7 @@ object UserDataService {
         name = ""
 
         AuthService.logout()
+        MessageService.logout()
     }
 
     fun returnAvatarColor(components: String) : Int {

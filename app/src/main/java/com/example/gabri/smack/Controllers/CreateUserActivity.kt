@@ -24,7 +24,6 @@ class CreateUserActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_user)
 
-
         createSpinner.visibility = View.INVISIBLE
     }
 
@@ -66,11 +65,11 @@ class CreateUserActivity : AppCompatActivity() {
         val password = createPassText.text.toString()
 
         if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-            AuthService.registerUser(this, email, password) { registerSuccess ->
+            AuthService.registerUser(email, password) { registerSuccess ->
                 if (registerSuccess) {
-                    AuthService.loginUser(this, email, password) { loginSuccess ->
+                    AuthService.loginUser(email, password) { loginSuccess ->
                         if (loginSuccess) {
-                            AuthService.createUser(this, username, email, userAvatar, avatarColor) { createSuccess ->
+                            AuthService.createUser(username, email, userAvatar, avatarColor) { createSuccess ->
                                 if (createSuccess) {
 
                                     val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)

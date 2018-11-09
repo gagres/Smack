@@ -30,9 +30,9 @@ class LoginActivity : AppCompatActivity() {
         val password = loginPassText.text.toString()
 
         if (email.isNotEmpty() && password.isNotEmpty()) {
-            AuthService.loginUser(this, email, password) { loginSuccess ->
+            AuthService.loginUser(email, password) { loginSuccess ->
                 if (loginSuccess) {
-                    AuthService.findUserByEmail(this) {userFound ->
+                    AuthService.findUserByEmail() {userFound ->
                         if (userFound) {
                             val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)
                             LocalBroadcastManager.getInstance(this).sendBroadcast(userDataChange)
